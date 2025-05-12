@@ -3,11 +3,20 @@ module Main where
 import Prelude
 
 import Effect (Effect)
-import Halogen.Aff (runHalogenAff, awaitBody) as HA
+import Effect.Aff (Aff)
+import Halogen.Aff (awaitBody,runHalogenAff) as HA
 import Halogen.VDom.Driver (runUI)
-import TreasureHunt.Components.Root(component)
+import TreasureHunt.RootComponent.Component (component)
+import TreasureHunt.Data(assetData)
+import Debug
 
 main :: Effect Unit
-main = HA.runHalogenAff do
-  body <- HA.awaitBody
-  runUI component unit body
+main = HA.runHalogenAff mainAff
+
+mainAff :: Aff Unit
+mainAff = do
+    traceM assetData
+    launchHalogen
+
+launchHalogen :: Aff Unit
+launchHalogen = void $ HA.awaitBody >>= runUI component unit

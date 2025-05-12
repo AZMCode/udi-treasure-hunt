@@ -1,10 +1,20 @@
 package:
   name: udi-treasure-hunt
   dependencies:
+    - aff
+    - aff-promise
+    - argonaut
+    - arraybuffer
+    - arraybuffer-types
+    - codec-argonaut
     - console
+    - debug
+    - dom-filereader
     - effect
     - halogen
+    - maybe
     - prelude
+    - run
   test:
     main: Test.Main
     dependencies: []
