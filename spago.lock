@@ -10,6 +10,7 @@
             "argonaut",
             "arraybuffer",
             "arraybuffer-types",
+            "b64",
             "codec-argonaut",
             "console",
             "debug",
@@ -31,6 +32,7 @@
             "arraybuffer-types",
             "arrays",
             "avar",
+            "b64",
             "bifunctors",
             "catenable-lists",
             "codec",
@@ -46,6 +48,7 @@
             "dom-indexed",
             "effect",
             "either",
+            "encoding",
             "enums",
             "exceptions",
             "exists",
@@ -805,6 +808,22 @@
         "maybe"
       ]
     },
+    "b64": {
+      "type": "registry",
+      "version": "0.0.8",
+      "integrity": "sha256-3QkOhnewZIqhfn0wIU6Zde6Q/LfrS59kgSOcQQaG0gM=",
+      "dependencies": [
+        "arraybuffer-types",
+        "either",
+        "encoding",
+        "enums",
+        "exceptions",
+        "functions",
+        "partial",
+        "prelude",
+        "strings"
+      ]
+    },
     "bifunctors": {
       "type": "registry",
       "version": "6.1.0",
@@ -976,6 +995,19 @@
         "control",
         "invariant",
         "maybe",
+        "prelude"
+      ]
+    },
+    "encoding": {
+      "type": "registry",
+      "version": "0.0.9",
+      "integrity": "sha256-vtyUO06Jww8pFl4wRekPd1YpJl2XuQXcaNXQgHtG8Tk=",
+      "dependencies": [
+        "arraybuffer-types",
+        "effect",
+        "either",
+        "exceptions",
+        "functions",
         "prelude"
       ]
     },

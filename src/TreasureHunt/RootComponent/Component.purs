@@ -2,6 +2,7 @@ module TreasureHunt.RootComponent.Component(component) where
 
 import Prelude
 
+import Effect.Aff.Class(liftAff)
 import Halogen (mkComponent, mkEval, defaultEval, modify, gets, get, Component, HalogenM) as H
 import Halogen.HTML (button, progress, div, text, HTML,ClassName(ClassName)) as HH
 import Halogen.HTML.Properties (classes) as HP
@@ -13,12 +14,11 @@ import Data.Either(Either(..),blush)
 import Web.File.Blob(Blob)
 import Data.Tuple.Nested(type (/\),(/\))
 import Effect.Aff.Class(class MonadAff)
-import Debug(spy)
 
-import TreasureHunt.RootComponent.Welcome           (welcome          )
-import TreasureHunt.RootComponent.Collect           (collect          )
-import TreasureHunt.RootComponent.AdminTool         (adminTool        )
-import TreasureHunt.RootComponent.CalculateDownload (calculateDownload)
+import TreasureHunt.RootComponent.Welcome           (welcome                  )
+import TreasureHunt.RootComponent.Collect           (collect                  )
+import TreasureHunt.RootComponent.AdminTool         (adminTool, AdminToolState)
+import TreasureHunt.RootComponent.CalculateDownload (calculateDownload        )
 import TreasureHunt.Utils (Eval,emptyDiv) as U
 
 data Page  = Welcome
@@ -28,13 +28,7 @@ data Page  = Welcome
 
 data State = MkState {
         shards :: Array Uint8Array,
-        adminTool :: {
-                uploadedImage :: Either String Blob,
-                threshold     :: String,
-                total         :: String,
-                error         :: Maybe String,
-                downloadLink  :: String
-            },
+        adminTool :: AdminToolState,
         page :: Page
     }
 
@@ -45,7 +39,10 @@ data Action = UpdateStored (Array Uint8Array)
             | UploadImage (Either String Blob)
             | ChangeThreshold String
             | ChangeTotal String
+            | ChangePrefix String
             | DownloadBundle
+
+
 
 component :: forall query input output m. MonadAff m => H.Component query input output m
 component = H.mkComponent { initialState, render, eval }
@@ -57,7 +54,8 @@ component = H.mkComponent { initialState, render, eval }
                     uploadedImage: Left "Ningún archivo seleccionado",
                     threshold: "1",
                     total: "2",
-                    error : Nothing,
+                    error: Nothing,
+                    prefix: "",
                     downloadLink: Nothing
                 },
                 page: Welcome
@@ -67,27 +65,22 @@ component = H.mkComponent { initialState, render, eval }
         render (MkState { page: Welcome         }) = welcome DismissWelcome
         render (MkState { page: Collect, shards }) = collect AdminSwitch Display $ length shards
         render (MkState { page: DisplayS  _     }) = U.emptyDiv
-        render (MkState { adminTool: { uploadedImage, threshold, total, error, downloadLink }, page: AdminTool       }) = 
+        render (MkState { adminTool: adminToolState, page: AdminTool       }) = 
             adminTool 
                 (UploadImage <<< Left) 
                 (UploadImage <<< Right) 
                 ChangeThreshold
                 ChangeTotal
+                ChangePrefix
                 DownloadBundle 
-                (blush uploadedImage)
-                threshold
-                total
-                error
-                downloadLink
+                adminToolState
 
 
 
         eval :: forall slots. U.Eval State query Action slots input output m
         eval = H.mkEval $ H.defaultEval { 
                 handleAction = \x -> do
-                    void $ H.gets $ spy "OldState"
                     handleAction x
-                    void $ H.gets $ spy "NewState"
                     pure unit
             }
             where
@@ -105,16 +98,20 @@ component = H.mkComponent { initialState, render, eval }
                         MkState r -> MkState $ r { adminTool { threshold = newThreshold } }
                 handleAction (ChangeTotal newTotal) = void $ H.modify case _ of
                         MkState r -> MkState $ r { adminTool { total = newTotal } }
+                handleAction (ChangePrefix newPrefix) = void $ H.modify case _ of
+                        MkState r -> MkState $ r { adminTool { prefix = newPrefix } }
                 handleAction (DownloadBundle      ) = do
                     (MkState { adminTool: { 
                             uploadedImage: uploadedImageE,
                             threshold: thresholdStr,
+                            prefix,
                             total: totalStr
                         } }) <- H.get
-                    e <- calculateDownload uploadedImageE thresholdStr totalStr
+                    e <- liftAff $ calculateDownload uploadedImageE thresholdStr totalStr prefix
                     case e of
-                        Left  s -> H.modify \(MkState r) -> MkState $ r { adminTool { error = Just s , downloadLink = Nothing } }
-                        Right v -> H.modify \(MkState r) -> MkState $ r { adminTool { error = Nothing, downloadLink = Just v  } }
+                        Left  s -> void $ H.modify \(MkState r) -> MkState $ r { adminTool { error = Just s , downloadLink = Nothing } }
+                        Right v -> void $ H.modify \(MkState r) -> MkState $ r { adminTool { error = Nothing, downloadLink = Just v  } }
+                handleAction _ = pure unit
                     
                     
 

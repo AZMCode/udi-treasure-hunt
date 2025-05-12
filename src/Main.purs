@@ -15,7 +15,6 @@ main = HA.runHalogenAff mainAff
 
 mainAff :: Aff Unit
 mainAff = do
-    traceM assetData
     launchHalogen
 
 launchHalogen :: Aff Unit

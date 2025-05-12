@@ -1,4 +1,4 @@
-module TreasureHunt.Data(AssetData(..),assetData) where
+module TreasureHunt.Data(AssetData(..),assetData,assetDataToJSON) where
 
 import Prelude
 
@@ -6,10 +6,10 @@ import Data.Either(hush)
 import Data.Maybe(Maybe)
 import Data.Profunctor(dimap)
 import Data.ArrayBuffer.Types (Uint8Array)
-import Data.Argonaut (jsonParser)
-import Data.Codec.Argonaut(object,string,int,prismaticCodec,decode,JsonCodec) as CA
+import Data.Argonaut (jsonParser,stringify)
+import Data.Codec.Argonaut(object,string,int,prismaticCodec,decode,encode,JsonCodec) as CA
 import Data.Codec.Argonaut.Record(record) as CAR
-import Scure.Base32(encode,decode) as B32
+import Data.Binary.Base64(encodeUrl,decode)
 
 
 foreign import assetDataJson :: String
@@ -22,7 +22,7 @@ data AssetData = MkAssetData {
 
 
 uint8ArrayCodec :: CA.JsonCodec Uint8Array
-uint8ArrayCodec = CA.prismaticCodec "Uint8Array" B32.decode B32.encode CA.string
+uint8ArrayCodec = CA.prismaticCodec "Uint8Array" (hush <<< decode) encodeUrl CA.string
 
 codec :: CA.JsonCodec AssetData
 codec = dimap unAssetData MkAssetData $ CA.object "AssetData" $
@@ -36,3 +36,6 @@ codec = dimap unAssetData MkAssetData $ CA.object "AssetData" $
 
 assetData :: Maybe AssetData
 assetData = (hush <<< CA.decode codec) =<< (hush $ jsonParser assetDataJson)
+
+assetDataToJSON :: AssetData -> String
+assetDataToJSON = stringify <<< CA.encode codec

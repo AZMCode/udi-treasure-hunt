@@ -6,6 +6,7 @@ package:
     - argonaut
     - arraybuffer
     - arraybuffer-types
+    - b64
     - codec-argonaut
     - console
     - debug

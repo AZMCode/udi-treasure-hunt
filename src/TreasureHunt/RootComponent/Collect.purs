@@ -2,7 +2,7 @@ module TreasureHunt.RootComponent.Collect(collect) where
 
 import Prelude
 
-import Data.Maybe(Maybe(..),isNothing)
+import Data.Maybe(Maybe(..))
 
 import Halogen.HTML (div,button,text,p_,h3,h1,ClassName(ClassName),HTML) as HH
 import Halogen.HTML.Properties (classes) as HP

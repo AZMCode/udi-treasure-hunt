@@ -1,4 +1,4 @@
-module TreasureHunt.RootComponent.AdminTool(adminTool) where
+module TreasureHunt.RootComponent.AdminTool(adminTool, AdminToolState) where
 
 import Prelude
 
@@ -9,13 +9,23 @@ import DOM.HTML.Indexed.InputType (InputType(..))
 import DOM.HTML.Indexed.InputAcceptType(InputAcceptType(..),InputAcceptTypeAtom(..))
 import Data.MediaType(MediaType(..))
 import Data.Maybe(Maybe(..))
+import Data.Either(Either(..))
 import Data.Array(head)
 import Data.Int(fromString)
 import Web.File.Blob(Blob)
 import Web.File.File(toBlob)
 
-adminTool :: forall w action. (String -> action) -> (Blob -> action) -> (String -> action) -> (String -> action) -> action -> Maybe String -> String -> String -> Maybe String -> Maybe String -> HH.HTML w action
-adminTool uploadErr upload changeThreshold changeTotal download fileErr threshold total formErr downloadLink =
+type AdminToolState = {
+        uploadedImage :: Either String Blob,
+        threshold     :: String,
+        total         :: String,
+        error         :: Maybe String,
+        prefix        :: String,
+        downloadLink  :: Maybe String
+    }
+
+adminTool :: forall w action. (String -> action) -> (Blob -> action) -> (String -> action) -> (String -> action) -> (String -> action) -> action -> AdminToolState -> HH.HTML w action
+adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ uploadedImage, threshold, total, prefix, error: formErr, downloadLink }) =
     HH.div [
             HP.classes [
                     HH.ClassName "p-5"
@@ -37,9 +47,9 @@ adminTool uploadErr upload changeThreshold changeTotal download fileErr threshol
                         Just f  -> upload    $ toBlob $ f
                         Nothing -> uploadErr $ "No hay archivo que subir"
                 ],
-            case fileErr of
-                Just err -> HH.p_ [ HH.text err ]
-                Nothing  -> HH.p_ [ HH.text "Archivo Exitosamente Seleccionado" ],
+            case uploadedImage of
+                Left err -> HH.p_ [ HH.text err ]
+                Right _  -> HH.p_ [ HH.text "Archivo Exitosamente Seleccionado" ],
             HH.label_ [
                     HH.text "Umbral",
                     HH.input [
@@ -56,6 +66,15 @@ adminTool uploadErr upload changeThreshold changeTotal download fileErr threshol
                         HP.type_ InputNumber,
                         HP.value total,
                         HE.onValueInput changeTotal
+                    ]
+                ],
+            HH.label_ [
+                    HH.text "Prefijo",
+                    HH.input [
+                        HP.classes [ HH.ClassName "input" ],
+                        HP.type_ InputText,
+                        HP.value prefix,
+                        HE.onValueInput changePrefix
                     ]
                 ],
             HH.p_ [ 
@@ -81,7 +100,7 @@ adminTool uploadErr upload changeThreshold changeTotal download fileErr threshol
                                 HH.ClassName "is-primary"
                             ],
                             HP.href link,
-                            HP.download "TreasureHunt.zip"
+                            HP.download "index.html"
                         ]
                     Nothing -> [
                         HP.classes [

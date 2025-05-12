@@ -12,7 +12,7 @@ export const getPublicKeyRaw = just => nothing => priv => {
 
 export const signRaw = just => nothing => priv => msg => {
     try {
-        return just(secp256k1.sign(msg,priv));
+        return just(secp256k1.sign(msg,priv).toCompactRawBytes());
     } catch {
         return nothing;
     }
