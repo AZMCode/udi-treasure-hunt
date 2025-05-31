@@ -4,9 +4,10 @@ import Prelude
 
 import Effect (Effect)
 import Effect.Class.Console (log)
+import Test.Codec.Data(testBatch) as CD
 
 main :: Effect Unit
 main = do
-  log "🍕"
-  log "You should add some tests."
+    log "Pruebas de Codec.Data"
+    CD.testBatch
 

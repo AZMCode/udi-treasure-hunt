@@ -1,6 +1,7 @@
 module Web.Crypto(getRandomValues) where
 
 import Effect(Effect)
+import Test.QuickCheck.Arbitrary(class Arbitrary,arbitrary)
 import Data.Maybe(Maybe(..))
 import Data.ArrayBuffer.Types(Uint8Array)
 

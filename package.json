@@ -13,7 +13,10 @@
         "build": "run-s build:spago build:vite",
         "build:watch:spago": "sane \"spago build\" src",
         "build:watch:vite": "vite",
-        "build:watch": "run-p build:watch:spago build:watch:vite"
+        "build:watch": "run-p build:watch:spago build:watch:vite",
+        "build:test": "vite build --config=vite-test.config.js",
+        "test": "run-s build:test run:test",
+        "run:test": "node dist-test/udi-treasure-hunt-test.cjs"
     },
     "devDependencies": {
         "@rollup/plugin-alias": "^5.1.1",

@@ -12,6 +12,15 @@ export default {
             { find: "#assets", replacement: path.resolve(__dirname,"assets") }
         ]
     },
+    build: {
+        outDir: './dist-test/',
+        lib: {
+            entry: path.resolve(__dirname, 'test-index.js'),
+            name: "udi-treasure-hunt-test",
+            fileName: "udi-treasure-hunt-test",
+            formats: [ "cjs" ]
+        }
+    },
     css: {
         modules: {
             localsConvention: 'camelCaseOnly'

@@ -14,7 +14,7 @@ import Data.Codec.Argonaut(array,decode,encode) as CA
 import Data.Argonaut(jsonParser,stringify) as A
 import TreasureHunt.Data(assetData) as D
 import Noble.Curves.Secp256k1(verify)
-import TreasureHunt.Utils(uint8ArrayEq)
+import Data.ArrayBuffer.Custom(uint8ArrayEq)
 import Data.Maybe(Maybe(..),fromMaybe,maybe)
 import Data.Either(hush)
 import TreasureHunt.Data(assetData,AssetData(..))

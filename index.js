@@ -1,3 +1,3 @@
-import { main } from "@ps/Main/index.js";
+import { main } from "#ps/Main/index.js";
 
 main();

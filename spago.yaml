@@ -16,6 +16,7 @@ package:
     - maybe
     - prelude
     - run
+    - quickcheck
     - web-url
   test:
     main: Test.Main

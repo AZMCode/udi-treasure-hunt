@@ -1,8 +1,10 @@
-
+assets/*
+!assets/data.json
 bower_components/
 node_modules/
 .pulp-cache/
 dist/
+dist-test/
 output/
 output-es/
 generated-docs/

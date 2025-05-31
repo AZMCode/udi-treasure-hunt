@@ -5,7 +5,7 @@ import Prelude
 import Data.Codec.Argonaut(int,record,object,JsonCodec) as CA
 import Data.Codec.Argonaut.Record(record) as CAR
 import Data.ArrayBuffer.Types(Uint8Array)
-import TreasureHunt.Utils(uint8ArrayCodec,uint8ArrayEq)
+import Data.ArrayBuffer.Custom(uint8ArrayCodec,uint8ArrayEq)
 import Data.Profunctor(dimap)
 
 data Shard = MkShard {

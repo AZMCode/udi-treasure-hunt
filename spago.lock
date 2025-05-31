@@ -19,6 +19,7 @@
             "halogen",
             "maybe",
             "prelude",
+            "quickcheck",
             "run",
             "web-url"
           ],
@@ -73,6 +74,7 @@
             "js-date",
             "js-promise",
             "lazy",
+            "lcg",
             "lists",
             "maybe",
             "media-types",
@@ -90,6 +92,8 @@
             "prelude",
             "profunctor",
             "profunctor-lenses",
+            "quickcheck",
+            "random",
             "record",
             "refs",
             "run",
@@ -1338,6 +1342,19 @@
         "prelude"
       ]
     },
+    "lcg": {
+      "type": "registry",
+      "version": "4.0.0",
+      "integrity": "sha256-h7ME5cthLfbgJOJdsZcSfFpwXsx4rf8YmhebU+3iSYg=",
+      "dependencies": [
+        "effect",
+        "integers",
+        "maybe",
+        "partial",
+        "prelude",
+        "random"
+      ]
+    },
     "lists": {
       "type": "registry",
       "version": "7.0.0",
@@ -1548,6 +1565,49 @@
         "record",
         "transformers",
         "tuples"
+      ]
+    },
+    "quickcheck": {
+      "type": "registry",
+      "version": "8.0.1",
+      "integrity": "sha256-ZvpccKQCvgslTXZCNmpYW4bUsFzhZd/kQUr2WmxFTGY=",
+      "dependencies": [
+        "arrays",
+        "console",
+        "control",
+        "effect",
+        "either",
+        "enums",
+        "exceptions",
+        "foldable-traversable",
+        "gen",
+        "identity",
+        "integers",
+        "lazy",
+        "lcg",
+        "lists",
+        "maybe",
+        "newtype",
+        "nonempty",
+        "numbers",
+        "partial",
+        "prelude",
+        "record",
+        "st",
+        "strings",
+        "tailrec",
+        "transformers",
+        "tuples",
+        "unfoldable"
+      ]
+    },
+    "random": {
+      "type": "registry",
+      "version": "6.0.0",
+      "integrity": "sha256-CJ611a35MPCE7XQMp0rdC6MCn76znlhisiCRgboAG+Q=",
+      "dependencies": [
+        "effect",
+        "integers"
       ]
     },
     "record": {
