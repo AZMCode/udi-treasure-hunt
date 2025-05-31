@@ -32,6 +32,9 @@ welcome skip = HH.div [
                 HH.text "Y si encuentras cierta cantidad de ellos, puedes descubir un mensaje secreto!"
             ],
         HH.p_ [
+                HH.text "(No hay recompensa por encontrar más de el requisito)"
+        ],
+        HH.p_ [
                 HH.text "Si no te interesa ésto, simplemente deja el QR donde lo encontraste, o mejor, escóndelo en otro lugar!"
             ],
         HH.hr [

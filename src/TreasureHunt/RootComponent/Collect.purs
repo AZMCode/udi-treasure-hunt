@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Maybe(Maybe(..))
 
-import Halogen.HTML (div,button,text,p_,h3,h1,ClassName(ClassName),HTML) as HH
+import Halogen.HTML (div,button,text,p_,h3,h1,h2,ClassName(ClassName),HTML) as HH
 import Halogen.HTML.Properties (classes) as HP
 import Halogen.HTML.Events (onClick) as HE
 
@@ -21,21 +21,28 @@ collect switchAdmin display count =
                     HH.ClassName "p-5"
                 ]
         ] (case assetData of
-                Just (MkAssetData { threshold }) -> join $ [
+                Just (MkAssetData { threshold, total }) -> join $ [
                         [
                             HH.h3 [ 
                                     HP.classes [ HH.ClassName "is-size-3" ] 
                                 ] [ HH.text $ "Recolección de Fragmentos" ],
-                            HH.p_    [ HH.text $ "Para desbloquear el secreto, es necesario recolectar " <> show threshold <> " secretos."],
+                            HH.p_    [ HH.text $ "Para desbloquear el secreto, es necesario recolectar " <> show threshold <> " de " <> show total <> " secretos escondidos."],
                             HH.p_    [ HH.text $ "Actualmente has recolectado " <> show count <> " de ellos." ],
                             HH.h1 [
                                     HP.classes [
                                             HH.ClassName "p-5",
                                             HH.ClassName "is-size-1"
                                         ]
-                                ] [ HH.text $ show count <> "/" <> show threshold ]
+                                ] [ HH.text $ show count <> "/" <> show threshold <> " Necesarios" ],
+                            HH.h2 [
+                                    HP.classes [
+                                            HH.ClassName "p-5",
+                                            HH.ClassName "is-size-2"
+                                        ]
+                                ] [ HH.text $ show count <> "/" <> show total <> " Total" ],
+                            HH.p_    [ HH.text $ "(Si ya has escaneado otro QR, refresca la página)" ]
                         ],
-                        if   threshold == count
+                        if count >= threshold
                         then [ 
                                 HH.button [ 
                                         HE.onClick \_ -> display,

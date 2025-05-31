@@ -16,6 +16,7 @@ package:
     - maybe
     - prelude
     - run
+    - web-url
   test:
     main: Test.Main
     dependencies: []

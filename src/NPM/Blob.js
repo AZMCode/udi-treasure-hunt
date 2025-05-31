@@ -1,0 +1,1 @@
+export const fromUint8Array = array => new Blob([array]);

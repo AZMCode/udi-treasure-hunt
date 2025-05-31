@@ -13,10 +13,10 @@ import Data.Either(Either(..))
 import Data.Array(head)
 import Data.Int(fromString)
 import Web.File.Blob(Blob)
-import Web.File.File(toBlob)
+import Web.File.File(File,toBlob)
 
 type AdminToolState = {
-        uploadedImage :: Either String Blob,
+        uploadedImage :: Either String File,
         threshold     :: String,
         total         :: String,
         error         :: Maybe String,
@@ -24,7 +24,7 @@ type AdminToolState = {
         downloadLink  :: Maybe String
     }
 
-adminTool :: forall w action. (String -> action) -> (Blob -> action) -> (String -> action) -> (String -> action) -> (String -> action) -> action -> AdminToolState -> HH.HTML w action
+adminTool :: forall w action. (String -> action) -> (File -> action) -> (String -> action) -> (String -> action) -> (String -> action) -> action -> AdminToolState -> HH.HTML w action
 adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ uploadedImage, threshold, total, prefix, error: formErr, downloadLink }) =
     HH.div [
             HP.classes [
@@ -44,7 +44,7 @@ adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ 
                         HH.ClassName "is-secondary"
                     ],
                     HE.onFileUpload $ \fs -> case head fs of
-                        Just f  -> upload    $ toBlob $ f
+                        Just f  -> upload    $ f
                         Nothing -> uploadErr $ "No hay archivo que subir"
                 ],
             case uploadedImage of
@@ -99,8 +99,7 @@ adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ 
                                 HH.ClassName "button",
                                 HH.ClassName "is-primary"
                             ],
-                            HP.href link,
-                            HP.download "index.html"
+                            HP.href link
                         ]
                     Nothing -> [
                         HP.classes [

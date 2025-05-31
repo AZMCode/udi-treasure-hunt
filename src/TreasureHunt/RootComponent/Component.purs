@@ -3,40 +3,49 @@ module TreasureHunt.RootComponent.Component(component) where
 import Prelude
 
 import Effect.Aff.Class(liftAff)
-import Halogen (mkComponent, mkEval, defaultEval, modify, gets, get, Component, HalogenM) as H
-import Halogen.HTML (button, progress, div, text, HTML,ClassName(ClassName)) as HH
-import Halogen.HTML.Properties (classes) as HP
+import Effect.Class(liftEffect)
+import Halogen (mkComponent, mkEval, defaultEval, modify, gets, get, put, Component, HalogenM) as H
+import Halogen.HTML (button, progress, div, text, p_, img, HTML,ClassName(ClassName)) as HH
+import Halogen.HTML.Properties (classes,src) as HP
 import Halogen.HTML.Events (onClick) as HE
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Array(length)
 import Data.Maybe(Maybe(..))
-import Data.Either(Either(..),blush)
+import Data.Either(Either(..),blush,note)
 import Web.File.Blob(Blob)
+import Web.File.File(File)
 import Data.Tuple.Nested(type (/\),(/\))
 import Effect.Aff.Class(class MonadAff)
+import Data.TextDecoder(decodeUtf8) as T
+import Data.Bifunctor(lmap)
 
 import TreasureHunt.RootComponent.Welcome           (welcome                  )
 import TreasureHunt.RootComponent.Collect           (collect                  )
 import TreasureHunt.RootComponent.AdminTool         (adminTool, AdminToolState)
 import TreasureHunt.RootComponent.CalculateDownload (calculateDownload        )
+import TreasureHunt.RootComponent.Initialize        (initialize               )
+import TreasureHunt.RootComponent.Decode            (decode                   )
+import TreasureHunt.RootComponent.Display           (display                  )
+import TreasureHunt.Shard                           (Shard                    )
 import TreasureHunt.Utils (Eval,emptyDiv) as U
 
 data Page  = Welcome
                 | Collect
-                | DisplayS String
+                | DisplayS 
                 | AdminTool
 
 data State = MkState {
-        shards :: Array Uint8Array,
+        shards :: Array Shard,
         adminTool :: AdminToolState,
-        page :: Page
+        page :: Page,
+        decryptedData :: (Either String String)
     }
 
-data Action = UpdateStored (Array Uint8Array)
+data Action = Initialize
             | DismissWelcome
             | Display
             | AdminSwitch
-            | UploadImage (Either String Blob)
+            | UploadImage (Either String File)
             | ChangeThreshold String
             | ChangeTotal String
             | ChangePrefix String
@@ -58,13 +67,14 @@ component = H.mkComponent { initialState, render, eval }
                     prefix: "",
                     downloadLink: Nothing
                 },
+                decryptedData: Left "Datos no decriptados todavía. Refresque e intente de nuevo.",
                 page: Welcome
             }
 
         render :: forall w. State -> HH.HTML w Action
-        render (MkState { page: Welcome         }) = welcome DismissWelcome
-        render (MkState { page: Collect, shards }) = collect AdminSwitch Display $ length shards
-        render (MkState { page: DisplayS  _     }) = U.emptyDiv
+        render (MkState { page: Welcome                 }) = welcome DismissWelcome
+        render (MkState { page: Collect, shards         }) = collect AdminSwitch Display $ length shards
+        render (MkState { page: DisplayS, decryptedData }) = display Display decryptedData
         render (MkState { adminTool: adminToolState, page: AdminTool       }) = 
             adminTool 
                 (UploadImage <<< Left) 
@@ -79,9 +89,8 @@ component = H.mkComponent { initialState, render, eval }
 
         eval :: forall slots. U.Eval State query Action slots input output m
         eval = H.mkEval $ H.defaultEval { 
-                handleAction = \x -> do
-                    handleAction x
-                    pure unit
+                handleAction = handleAction,
+                initialize = Just Initialize
             }
             where
                 handleAction :: Action -> H.HalogenM State Action slots output m Unit
@@ -111,7 +120,24 @@ component = H.mkComponent { initialState, render, eval }
                     case e of
                         Left  s -> void $ H.modify \(MkState r) -> MkState $ r { adminTool { error = Just s , downloadLink = Nothing } }
                         Right v -> void $ H.modify \(MkState r) -> MkState $ r { adminTool { error = Nothing, downloadLink = Just v  } }
-                handleAction _ = pure unit
+                handleAction Initialize = do
+                    initialShards <- liftEffect $ initialize
+                    void $ H.modify \(MkState r) -> MkState $ r { shards = initialShards }
+                handleAction Display    = do
+                    s <- H.get 
+                    let (MkState r@{ page, shards, decryptedData }) = s
+                    case page /\ decryptedData of
+                        Collect  /\ (Left  _) -> do
+                            decodedUrlE <- liftAff $ decode shards
+                            void $ H.put $ MkState $ r { page = DisplayS, decryptedData = decodedUrlE }
+                        Collect  /\ (Right s) -> 
+                            void $ H.put $ MkState $ r { page = DisplayS }
+                        DisplayS /\ _         ->
+                            void $ H.put $ MkState $ r { page = Collect   }
+                        _                     -> pure unit
+
+
+                
                     
                     
 
