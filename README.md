@@ -32,7 +32,7 @@ El proyecto utiliza **Purescript** y está construido completamente como una apl
 git clone https://github.com/AZMCode/udi-treasure-hunt.git
 cd udi-treasure-hunt
 npm install
-spago build
+npm run build
 ```
 
 ### Ejecución en desarrollo
