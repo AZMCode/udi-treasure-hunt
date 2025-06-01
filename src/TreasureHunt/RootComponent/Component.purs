@@ -77,12 +77,14 @@ component = H.mkComponent { initialState, render, eval }
         render (MkState { page: DisplayS, decryptedData }) = display Display decryptedData
         render (MkState { adminTool: adminToolState, page: AdminTool       }) = 
             adminTool 
-                (UploadImage <<< Left) 
-                (UploadImage <<< Right) 
-                ChangeThreshold
-                ChangeTotal
-                ChangePrefix
-                DownloadBundle 
+                {
+                    uploadErr       : (UploadImage <<< Left) ,  
+                    upload          : (UploadImage <<< Right),   
+                    changeThreshold : ChangeThreshold        ,      
+                    changeTotal     : ChangeTotal            ,   
+                    changePrefix    : ChangePrefix           ,     
+                    download        : DownloadBundle           
+                } 
                 adminToolState
 
 

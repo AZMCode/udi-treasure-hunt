@@ -24,8 +24,17 @@ type AdminToolState = {
         downloadLink  :: Maybe String
     }
 
-adminTool :: forall w action. (String -> action) -> (File -> action) -> (String -> action) -> (String -> action) -> (String -> action) -> action -> AdminToolState -> HH.HTML w action
-adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ uploadedImage, threshold, total, prefix, error: formErr, downloadLink }) =
+type AdminActions action = {
+        uploadErr       :: String -> action,
+        upload          :: File   -> action,
+        changeThreshold :: String -> action,
+        changeTotal     :: String -> action,
+        changePrefix    :: String -> action,
+        download        ::           action
+    }
+
+adminTool :: forall w action. AdminActions action -> AdminToolState -> HH.HTML w action
+adminTool actions state =
     HH.div [
             HP.classes [
                     HH.ClassName "p-5"
@@ -44,10 +53,10 @@ adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ 
                         HH.ClassName "is-secondary"
                     ],
                     HE.onFileUpload $ \fs -> case head fs of
-                        Just f  -> upload    $ f
-                        Nothing -> uploadErr $ "No hay archivo que subir"
+                        Just f  -> actions.upload    $ f
+                        Nothing -> actions.uploadErr $ "No hay archivo que subir"
                 ],
-            case uploadedImage of
+            case state.uploadedImage of
                 Left err -> HH.p_ [ HH.text err ]
                 Right _  -> HH.p_ [ HH.text "Archivo Exitosamente Seleccionado" ],
             HH.label_ [
@@ -55,8 +64,8 @@ adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ 
                     HH.input [
                         HP.classes [ HH.ClassName "input" ],
                         HP.type_ InputNumber,
-                        HP.value threshold,
-                        HE.onValueInput changeThreshold
+                        HP.value state.threshold,
+                        HE.onValueInput actions.changeThreshold
                     ]
                 ],
             HH.label_ [
@@ -64,8 +73,8 @@ adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ 
                     HH.input [
                         HP.classes [ HH.ClassName "input" ],
                         HP.type_ InputNumber,
-                        HP.value total,
-                        HE.onValueInput changeTotal
+                        HP.value state.total,
+                        HE.onValueInput actions.changeTotal
                     ]
                 ],
             HH.label_ [
@@ -73,13 +82,13 @@ adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ 
                     HH.input [
                         HP.classes [ HH.ClassName "input" ],
                         HP.type_ InputText,
-                        HP.value prefix,
-                        HE.onValueInput changePrefix
+                        HP.value state.prefix,
+                        HE.onValueInput actions.changePrefix
                     ]
                 ],
             HH.p_ [ 
                     HH.text 
-                        case formErr of
+                        case state.error of
                             Just s -> s
                             Nothing -> ""
                 ],
@@ -89,11 +98,11 @@ adminTool uploadErr upload changeThreshold changeTotal changePrefix download ({ 
                         HH.ClassName "is-primary",
                         HH.ClassName "m-5"
                     ],
-                    HE.onClick \_ -> download
+                    HE.onClick \_ -> actions.download
                 ] [
                     HH.text "Generate Config Files"
                 ],
-            HH.a (case downloadLink of
+            HH.a (case state.downloadLink of
                     Just link -> [
                             HP.classes [
                                 HH.ClassName "button",
